@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HabitFlow - Flutter Habit Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:#0a0a1a;color:#e2e8f0;overflow-x:hidden}
+    .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(6,182,212,0.12),transparent 60%),radial-gradient(circle at 80% 30%,rgba(34,211,238,0.08),transparent 50%)}
+    .container{max-width:1100px;margin:0 auto;position:relative;z-index:1}
+    .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.25);border-radius:50px;padding:6px 16px;font-size:13px;color:#67e8f9;margin-bottom:20px}
+    .hero-badge span{background:#0891b2;color:#fff;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+    h1{font-size:52px;font-weight:800;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,#67e8f9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .subtitle{font-size:18px;color:#94a3b8;line-height:1.7;margin-bottom:32px}
+    .cta-row{display:flex;gap:12px;margin-bottom:40px}
+    .btn{padding:14px 28px;border-radius:12px;font-weight:600;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .3s}
+    .btn-primary{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;box-shadow:0 4px 20px rgba(6,182,212,0.4)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(6,182,212,0.5)}
+    .btn-secondary{background:rgba(255,255,255,0.08);color:#e2e8f0;border:1px solid rgba(255,255,255,0.1)}
+    .btn-secondary:hover{background:rgba(255,255,255,0.12)}
+    .stats-row{display:flex;gap:32px}
+    .stat{text-align:center}.stat-value{font-size:28px;font-weight:800;color:#06b6d4}.stat-label{font-size:12px;color:#64748b;margin-top:4px}
+    .phone-mockup{position:relative;display:flex;justify-content:center}
+    .phone{width:280px;height:560px;background:linear-gradient(180deg,#111827 0%,#0f172a 100%);border-radius:40px;border:3px solid rgba(6,182,212,0.2);padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(6,182,212,0.1);overflow:hidden}
+    .phone-header{text-align:center;margin-bottom:16px}
+    .phone-header h3{font-size:16px;font-weight:700;color:#fff}
+    .phone-header p{font-size:11px;color:#64748b}
+    .habit-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+    .habit-check{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+    .habit-check.done{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+    .habit-check.pending{background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15)}
+    .habit-info h4{font-size:13px;font-weight:600;color:#e2e8f0}
+    .habit-info p{font-size:10px;color:#64748b}
+    .progress-ring{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:6px;margin-top:6px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#06b6d4,#22d3ee);border-radius:6px}
+    .features{padding:80px 20px;background:rgba(255,255,255,0.01)}
+    .features h2{text-align:center;font-size:32px;font-weight:700;margin-bottom:48px;color:#fff}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto}
+    .feature-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;transition:all .3s}
+    .feature-card:hover{border-color:rgba(6,182,212,0.3);transform:translateY(-4px)}
+    .feature-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(6,182,212,0.15),rgba(34,211,238,0.15));display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+    .feature-card h3{font-size:16px;font-weight:600;margin-bottom:8px;color:#fff}
+    .feature-card p{font-size:14px;color:#94a3b8;line-height:1.6}
+    .tech-section{padding:60px 20px;text-align:center}
+    .tech-section h2{font-size:24px;font-weight:700;margin-bottom:24px;color:#fff}
+    .tech-pills{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;max-width:800px;margin:0 auto}
+    .pill{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:50px;padding:8px 20px;font-size:14px;color:#67e8f9;font-weight:500}
+    .flutter-logo{display:inline-flex;align-items:center;gap:6px;margin-bottom:4px}
+    .flutter-logo svg{width:20px;height:24px}
+    footer{text-align:center;padding:40px 20px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:#64748b}
+    footer a{color:#06b6d4;text-decoration:none}
+    @media(max-width:768px){.hero-grid{grid-template-columns:1fr;text-align:center}.phone-mockup{order:-1}h1{font-size:36px}.feature-grid{grid-template-columns:1fr}.stats-row{justify-content:center}.cta-row{justify-content:center}}
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-badge">
+            <span>FLUTTER</span> Cross-Platform App
+          </div>
+          <h1>Your Habits, Beautifully Tracked</h1>
+          <p class="subtitle">HabitFlow Flutter brings a native, fluid experience to habit tracking. Built with Flutter & Provider for buttery-smooth animations and real-time state management.</p>
+          <div class="cta-row">
+            <a href="https://github.com/Rybak1234/habit-tracker-flutter" class="btn btn-primary" target="_blank">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              View on GitHub
+            </a>
+            <a href="#features" class="btn btn-secondary">Explore Features</a>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-value">60fps</div><div class="stat-label">Smooth UI</div></div>
+            <div class="stat"><div class="stat-value">2</div><div class="stat-label">Platforms</div></div>
+            <div class="stat"><div class="stat-value">100%</div><div class="stat-label">Open Source</div></div>
+          </div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone">
+            <div class="phone-header">
+              <h3>✨ Today's Progress</h3>
+              <p>5 of 7 habits done</p>
+            </div>
+            <div class="habit-item"><div class="habit-check done">✓</div><div class="habit-info"><h4>Morning Yoga</h4><p>🔥 15 day streak</p><div class="progress-ring"><div class="progress-fill" style="width:90%"></div></div></div></div>
+            <div class="habit-item"><div class="habit-check done">✓</div><div class="habit-info"><h4>Learn Dart</h4><p>🔥 22 day streak</p><div class="progress-ring"><div class="progress-fill" style="width:100%"></div></div></div></div>
+            <div class="habit-item"><div class="habit-check done">✓</div><div class="habit-info"><h4>Walk 10k Steps</h4><p>🔥 7 day streak</p><div class="progress-ring"><div class="progress-fill" style="width:70%"></div></div></div></div>
+            <div class="habit-item"><div class="habit-check done">✓</div><div class="habit-info"><h4>Healthy Breakfast</h4><p>🔥 30 day streak</p><div class="progress-ring"><div class="progress-fill" style="width:100%"></div></div></div></div>
+            <div class="habit-item"><div class="habit-check done">✓</div><div class="habit-info"><h4>Read Articles</h4><p>🔥 11 day streak</p><div class="progress-ring"><div class="progress-fill" style="width:75%"></div></div></div></div>
+            <div class="habit-item"><div class="habit-check pending"></div><div class="habit-info"><h4>No Coffee After 3pm</h4><p>⏳ Waiting...</p><div class="progress-ring"><div class="progress-fill" style="width:40%"></div></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <h2>Why HabitFlow Flutter?</h2>
+    <div class="feature-grid">
+      <div class="feature-card"><div class="feature-icon">⚡</div><h3>Lightning Fast</h3><p>Built with Flutter's Skia engine for native-quality 60fps rendering on both iOS & Android.</p></div>
+      <div class="feature-card"><div class="feature-icon">🔄</div><h3>Provider State</h3><p>Clean architecture with Provider for reactive state management and dependency injection.</p></div>
+      <div class="feature-card"><div class="feature-icon">📈</div><h3>Analytics</h3><p>Weekly and monthly habit completion analytics with visual progress indicators.</p></div>
+      <div class="feature-card"><div class="feature-icon">🎨</div><h3>Material 3</h3><p>Modern Material Design 3 with dynamic color system and dark mode support.</p></div>
+      <div class="feature-card"><div class="feature-icon">💾</div><h3>Local Storage</h3><p>SharedPreferences for fast, offline-first data persistence without a backend.</p></div>
+      <div class="feature-card"><div class="feature-icon">🧪</div><h3>Well Tested</h3><p>Unit and widget tests ensure reliability and prevent regressions as you build.</p></div>
+    </div>
+  </section>
+
+  <section class="tech-section">
+    <h2>Technology Stack</h2>
+    <div class="tech-pills">
+      <span class="pill">Flutter 3.x</span>
+      <span class="pill">Dart 3.0+</span>
+      <span class="pill">Provider 6.1</span>
+      <span class="pill">Material Design 3</span>
+      <span class="pill">SharedPreferences</span>
+      <span class="pill">Widget Testing</span>
+    </div>
+  </section>
+
+  <footer>
+    <p>Built by <a href="https://github.com/Rybak1234" target="_blank">Rybak1234</a> &copy; 2024 &mdash; HabitFlow Flutter</p>
+  </footer>
+</body>
+</html>
