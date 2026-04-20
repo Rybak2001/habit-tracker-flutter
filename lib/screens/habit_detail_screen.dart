@@ -2,11 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../providers/habit_provider.dart';
+import 'habit_history_screen.dart';
 
 const _kColors = [
   '#6C63FF', '#FF6B6B', '#4ECDC4', '#FFD93D', '#FF8C42',
   '#A8E6CF', '#DDA0DD', '#87CEEB', '#F08080', '#98D8C8',
   '#FF69B4', '#20B2AA',
+];
+
+class _HabitTemplate {
+  final String name;
+  final String color;
+  final int targetDays;
+  final String category;
+  final IconData icon;
+
+  const _HabitTemplate({
+    required this.name,
+    required this.color,
+    required this.targetDays,
+    required this.category,
+    required this.icon,
+  });
+}
+
+const _templates = [
+  _HabitTemplate(name: 'Ejercicio', color: '#FF6B6B', targetDays: 7, category: 'Ejercicio', icon: Icons.fitness_center),
+  _HabitTemplate(name: 'Leer', color: '#87CEEB', targetDays: 5, category: 'Educación', icon: Icons.menu_book),
+  _HabitTemplate(name: 'Meditar', color: '#DDA0DD', targetDays: 7, category: 'Bienestar', icon: Icons.self_improvement),
+  _HabitTemplate(name: 'Beber agua', color: '#4ECDC4', targetDays: 7, category: 'Salud', icon: Icons.water_drop),
+  _HabitTemplate(name: 'Estudiar', color: '#A8E6CF', targetDays: 5, category: 'Educación', icon: Icons.school),
+  _HabitTemplate(name: 'Dormir bien', color: '#6C63FF', targetDays: 7, category: 'Salud', icon: Icons.bedtime),
 ];
 
 class HabitDetailScreen extends StatefulWidget {
@@ -23,6 +49,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   final _descController = TextEditingController();
   String _color = _kColors[0];
   int _targetDays = 7;
+  String _category = '';
   bool _isEditing = false;
 
   @override
@@ -37,6 +64,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         _descController.text = habit.description;
         _color = habit.color;
         _targetDays = habit.targetDays;
+        _category = habit.category;
       }
     }
   }
@@ -54,11 +82,20 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     return Color(int.parse(hex, radix: 16));
   }
 
+  void _applyTemplate(_HabitTemplate t) {
+    setState(() {
+      _nameController.text = t.name;
+      _color = t.color;
+      _targetDays = t.targetDays;
+      _category = t.category;
+    });
+  }
+
   void _save() {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a habit name')),
+        const SnackBar(content: Text('Por favor ingresa un nombre')),
       );
       return;
     }
@@ -73,6 +110,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
           description: _descController.text.trim(),
           color: _color,
           targetDays: _targetDays,
+          category: _category,
         ));
       }
     } else {
@@ -81,6 +119,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         description: _descController.text.trim(),
         color: _color,
         targetDays: _targetDays,
+        category: _category,
       ));
     }
     Navigator.pop(context);
@@ -92,20 +131,54 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Habit' : 'New Habit'),
+        title: Text(_isEditing ? 'Editar Hábito' : 'Nuevo Hábito'),
         centerTitle: true,
+        actions: [
+          if (_isEditing)
+            IconButton(
+              icon: const Icon(Icons.history_rounded),
+              tooltip: 'Historial',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => HabitHistoryScreen(habitId: widget.habitId!),
+                ),
+              ),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _sectionTitle('Habit Name *'),
+            // Templates (only when creating new)
+            if (!_isEditing) ...[
+              _sectionTitle('Plantillas Rápidas'),
+              const SizedBox(height: 4),
+              SizedBox(
+                height: 44,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: _templates.map((t) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ActionChip(
+                      avatar: Icon(t.icon, size: 18),
+                      label: Text(t.name),
+                      onPressed: () => _applyTemplate(t),
+                    ),
+                  )).toList(),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+
+            _sectionTitle('Nombre del Hábito *'),
             TextField(
               controller: _nameController,
               maxLength: 50,
               decoration: InputDecoration(
-                hintText: 'e.g., Exercise, Read, Meditate',
+                hintText: 'Ej: Ejercicio, Leer, Meditar',
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -115,13 +188,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            _sectionTitle('Description'),
+            _sectionTitle('Descripción'),
             TextField(
               controller: _descController,
               maxLength: 200,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Optional description...',
+                hintText: 'Descripción opcional...',
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -131,6 +204,26 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               ),
             ),
             const SizedBox(height: 8),
+
+            // Category selector
+            _sectionTitle('Categoría'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: CATEGORIES.map((cat) {
+                final selected = _category == cat;
+                return FilterChip(
+                  label: Text(cat),
+                  selected: selected,
+                  onSelected: (_) => setState(() {
+                    _category = selected ? '' : cat;
+                  }),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+
             _sectionTitle('Color'),
             const SizedBox(height: 8),
             Wrap(
@@ -159,7 +252,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               }).toList(),
             ),
             const SizedBox(height: 20),
-            _sectionTitle('Target Days per Week'),
+            _sectionTitle('Días Objetivo por Semana'),
             const SizedBox(height: 8),
             Row(
               children: List.generate(7, (i) {
@@ -207,8 +300,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _targetDays == 7
-                    ? 'Every day'
-                    : '$_targetDays day${_targetDays > 1 ? 's' : ''} per week',
+                    ? 'Todos los días'
+                    : '$_targetDays día${_targetDays > 1 ? 's' : ''} por semana',
                 style: const TextStyle(color: Colors.grey, fontSize: 13),
                 textAlign: TextAlign.center,
               ),
@@ -226,7 +319,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   ),
                 ),
                 child: Text(
-                  _isEditing ? 'Update Habit' : 'Create Habit',
+                  _isEditing ? 'Actualizar Hábito' : 'Crear Hábito',
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,

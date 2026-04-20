@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/habit_provider.dart';
 import 'screens/habit_list_screen.dart';
+import 'screens/calendar_screen.dart';
+import 'screens/achievements_screen.dart';
 import 'screens/stats_screen.dart';
+import 'screens/settings_screen.dart';
 
 void main() {
   runApp(
@@ -43,7 +46,10 @@ class _MainScreenState extends State<MainScreen> {
 
   final _screens = const [
     HabitListScreen(),
+    CalendarScreen(),
+    AchievementsScreen(),
     StatsScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -57,12 +63,27 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             icon: Icon(Icons.checklist_rounded),
             selectedIcon: Icon(Icons.checklist_rounded),
-            label: 'Habits',
+            label: 'Hábitos',
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_rounded),
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month),
+            label: 'Calendario',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.emoji_events_outlined),
+            selectedIcon: Icon(Icons.emoji_events),
+            label: 'Logros',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart_rounded),
-            label: 'Statistics',
+            label: 'Estadísticas',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Ajustes',
           ),
         ],
       ),
